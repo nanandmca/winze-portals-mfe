@@ -9,9 +9,6 @@ const DashboardHome = () => {
     return (
         <div className="container">
             <div>Name: dashboard</div>
-            <div>Framework: react</div>
-            <div>Language: JavaScript</div>
-            <div>CSS: Empty CSS</div>
             <VConnectReports/>
             <br/>
             <VConnect/>
