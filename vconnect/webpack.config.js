@@ -7,9 +7,35 @@ const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require('./compilation.config.js');
 
+function getDotenvFilename(){
+  return '.env.' + process.env.NODE_ENV;
+}
+
+function getDotenvCommonFilename(){
+  return '../.env.' + process.env.NODE_ENV;
+}
+
+console.log('Dashboard -> Before NODE_ENV :', process.env.NODE_ENV);
+const isProduction = process.env.NODE_ENV === 'production';
+const dotenvFilename = getDotenvFilename();
+const dotenvCommonFilename = getDotenvCommonFilename();
+console.log('VConnect -> isProduction :', isProduction);
+console.log('VConnect -> dotenvFilename:', dotenvFilename);
+console.log('VConnect -> dotenvCommonFilename:', dotenvCommonFilename);
+let contextRoot = '/vconnect/';
+
+require('dotenv').config({ path: dotenvCommonFilename });
+if (process.env.NODE_ENV === "development"){
+  contextRoot = "auto";
+}
+
 module.exports = (_, argv) => ({
+  mode: process.env.NODE_ENV || 'development',
+  entry: './src/index.js',
   output: {
-    publicPath: "auto",
+    filename: 'bundle.js',
+    publicPath: contextRoot,
+    path: path.resolve(__dirname, 'dist'),
   },
 
   resolve: {
@@ -17,6 +43,9 @@ module.exports = (_, argv) => ({
   },
 
   devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     port: 9003,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
@@ -81,8 +110,10 @@ module.exports = (_, argv) => ({
       },
     }),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
+      template: "./src/index.html"
     }),
-    new Dotenv()
+    new Dotenv({
+      path: dotenvFilename,
+    })
   ],
 });

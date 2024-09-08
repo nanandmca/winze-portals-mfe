@@ -7,9 +7,35 @@ const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require('./compilation.config.js');
 
+function getDotenvFilename(){
+  return '.env.' + process.env.NODE_ENV;
+}
+
+function getDotenvCommonFilename(){
+  return '../.env.' + process.env.NODE_ENV;
+}
+
+console.log('Dashboard -> Before NODE_ENV :', process.env.NODE_ENV);
+const isProduction = process.env.NODE_ENV === 'production';
+const dotenvFilename = getDotenvFilename();
+const dotenvCommonFilename = getDotenvCommonFilename();
+console.log('Dashboard -> isProduction :', isProduction);
+console.log('Dashboard -> dotenvFilename:', dotenvFilename);
+console.log('Dashboard -> dotenvCommonFilename:', dotenvCommonFilename);
+let contextRoot = '/dashboard/';
+
+require('dotenv').config({ path: dotenvCommonFilename });
+if (process.env.NODE_ENV === "development"){
+  contextRoot = "auto";
+}
+
 module.exports = (_, argv) => ({
+  mode: process.env.NODE_ENV || 'development',
+  entry: './src/index.js',
   output: {
-    publicPath: "auto",
+    filename: 'bundle.js',
+    publicPath: contextRoot,
+    path: path.resolve(__dirname, 'dist'),
   },
 
   resolve: {
@@ -17,6 +43,9 @@ module.exports = (_, argv) => ({
   },
 
   devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     port: 9002,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
@@ -65,9 +94,9 @@ module.exports = (_, argv) => ({
       name: "dashboard",
       filename: "dashboard.js",
       remotes: {
-        "vconnect": "vconnect@http://localhost:9003/vconnect.js",
-        "vconnect_reports": "vconnect_reports@http://localhost:9004/vconnect_reports.js",
-        "portal_admin": "portal_admin@http://localhost:9005/portal_admin.js",
+        "vconnect": `vconnect@${process.env.REACT_APP_VCONNECT_MFE_URL}/vconnect.js`,
+        "vconnect_reports": `vconnect_reports@${process.env.REACT_APP_VCONNECT_REPORT_MFE_URL}/vconnect_reports.js`,
+        "portal_admin": `portal_admin@${process.env.REACT_APP_PORTAL_ADMIN_MFE_URL}/portal_admin.js`,
       },
       exposes: {
         "./Dashboard" : "./src/components/DashboardHome"
@@ -85,8 +114,10 @@ module.exports = (_, argv) => ({
       },
     }),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
+      template: "./src/index.html"
     }),
-    new Dotenv()
+    new Dotenv({
+      path: dotenvFilename,
+    })
   ],
 });

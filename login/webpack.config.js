@@ -7,16 +7,44 @@ const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require('./compilation.config.js');
 
-module.exports = (_, argv) => ({
-  output: {
-    publicPath: "auto",
-  },
+function getDotenvFilename(){
+  return '.env.' + process.env.NODE_ENV;
+}
 
+function getDotenvCommonFilename(){
+  return '../.env.' + process.env.NODE_ENV;
+}
+
+console.log('Login -> Before NODE_ENV :', process.env.NODE_ENV);
+const isProduction = process.env.NODE_ENV === 'production';
+const dotenvFilename = getDotenvFilename();
+const dotenvCommonFilename = getDotenvCommonFilename();
+console.log('Login -> isProduction :', isProduction);
+console.log('Login -> dotenvFilename:', dotenvFilename);
+console.log('Login -> dotenvCommonFilename:', dotenvCommonFilename);
+let contextRoot = '/login/';
+
+require('dotenv').config({ path: dotenvCommonFilename });
+if (process.env.NODE_ENV === "development"){
+  contextRoot = "auto";
+}
+
+module.exports = (_, argv) => ({
+  mode: process.env.NODE_ENV || 'development',
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    publicPath: contextRoot,
+    path: path.resolve(__dirname, 'dist'),
+  },
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
 
   devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     port: 9001,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
@@ -81,8 +109,10 @@ module.exports = (_, argv) => ({
       },
     }),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
+      template: "./src/index.html"
     }),
-    new Dotenv()
+    new Dotenv({
+      path: dotenvFilename,
+    })
   ],
 });

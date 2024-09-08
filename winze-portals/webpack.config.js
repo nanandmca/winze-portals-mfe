@@ -1,21 +1,43 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require('./compilation.config.js');
 
+function getDotenvFilename(){
+  return '.env.' + process.env.NODE_ENV;
+}
+
+function getDotenvCommonFilename(){
+  return '../.env.' + process.env.NODE_ENV;
+}
+
+console.log('Before NODE_ENV :', process.env.NODE_ENV);
+const isProduction = process.env.NODE_ENV === 'production';
+const dotenvFilename = getDotenvFilename();
+const dotenvCommonFilename = getDotenvCommonFilename();
+console.log('isProduction :', isProduction);
+console.log('dotenvFilename:', dotenvFilename);
+console.log('dotenvCommonFilename:', dotenvCommonFilename);
+
+require('dotenv').config({ path: dotenvCommonFilename });
+
+console.log('After REACT_APP_DASHBOARD_MFE_URL in webpack config :', process.env.REACT_APP_DASHBOARD_MFE_URL);
+
 module.exports = (_, argv) => ({
+  mode: process.env.NODE_ENV || 'development',
+  entry: './src/index.js',
   output: {
     publicPath: "auto",
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
   },
-
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
   },
-
   devServer: {
     port: 9000,
     historyApiFallback: true,
@@ -65,8 +87,8 @@ module.exports = (_, argv) => ({
       name: "winze_portals",
       filename: "winze_portals.js",
       remotes: {
-        "login": "login@http://localhost:9001/login.js",
-        "dashboard": "dashboard@http://localhost:9002/dashboard.js",
+        "login": `login@${process.env.REACT_APP_LOGIN_MFE_URL}/login.js`,
+        "dashboard": `dashboard@${process.env.REACT_APP_DASHBOARD_MFE_URL}/dashboard.js`,
       },
       exposes: {},
       shared: {
@@ -88,6 +110,13 @@ module.exports = (_, argv) => ({
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv()
+    new Dotenv({
+      path: dotenvFilename,
+    })
   ],
 });
+
+console.log('NODE_ENV in webpack config :', process.env.NODE_ENV);
+console.log('REACT_APP_DASHBOARD_MFE_URL in webpack config :', process.env.REACT_APP_DASHBOARD_MFE_URL);
+
+

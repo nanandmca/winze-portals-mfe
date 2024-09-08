@@ -2,16 +2,20 @@
   "name": "winze-portals",
   "version": "1.0.0",
   "scripts": {
-    "build": "webpack --mode production",
-    "build:dev": "webpack --mode development",
-    "build:start": "cd dist && PORT=9000 npx serve",
-    "start": "webpack serve --mode development",
-    "start:live": "webpack serve --mode development --live-reload --hot"
+    "build": "cross-env NODE_ENV=production webpack --mode production",
+    "build:dev": "cross-env NODE_ENV=development webpack --mode development",
+    "build:sit": "cross-env NODE_ENV=sit webpack --mode production && cross-env NODE_ENV=sit npm run deploy",
+    "build:uat": "cross-env NODE_ENV=uat webpack --mode production && cross-env NODE_ENV=uat npm run deploy",
+    "build:production": "cross-env NODE_ENV=uat webpack --mode production && cross-env NODE_ENV=production npm run deploy",
+    "build:start": "cd ../web-server/public && PORT=9000 npx serve",
+    "start": "cross-env NODE_ENV=development webpack serve --mode development",
+    "start:live": "webpack serve --mode development --live-reload --hot",
+    "deploy": "node scripts/deploy.js"
   },
   "license": "MIT",
   "author": {
-    "name": "Jack Herrington",
-    "email": "jherr@pobox.com"
+    "name": "Anand",
+    "email": "anandwinze@hotmail.com"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
@@ -20,6 +24,7 @@
     "@babel/preset-react": "^7.14.5",
     "autoprefixer": "^10.1.0",
     "babel-loader": "^8.2.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.3.0",
     "dotenv-webpack": "^8.0.1",
     "html-webpack-plugin": "^5.3.2",
@@ -32,6 +37,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.0"

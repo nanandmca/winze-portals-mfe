@@ -69,7 +69,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+../.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -82,7 +82,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+../web-server/dist
 
 # Gatsby files
 .cache/

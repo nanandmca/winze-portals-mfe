@@ -4,7 +4,7 @@ import "./../index.css";
 
 const VConnectHome = () => {
     return (<div className="container">
-        <div>Name: <h6>vconnect home</h6></div>
+        <div>Name: <h6>vconnect home SIT</h6></div>
     </div>)
 };
 

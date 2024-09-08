@@ -8,7 +8,7 @@ import "./../index.css";
 const DashboardHome = () => {
     return (
         <div className="container">
-            <div>Name: dashboard</div>
+            <div>Name: dashboard SIT</div>
             <VConnectReports/>
             <br/>
             <VConnect/>
